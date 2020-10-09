@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# blocks explicitly defined as functions for scripting use
+upper_left() { echo -ne "\u259D\u2598 "; }
+back_cross() { echo -ne "\u259D\u259A\u2596"; }
+upper_right_corner() { echo -ne "\u259D\u259C\u258C"; }
+full_block() { echo -ne "\u2590\u2588\u258C"; }
+lower_right_corner() { echo -ne "\u2597\u259F\u258C"; }
+cross() { echo -ne "\u2597\u259E\u2598"; }
+upper_right() { echo -ne " \u259D\u2598"; }
+blank() { echo -n "   "; }
+clean_line() { echo -ne "\b\b\b"; }
+
+###################### USE THIS FUNCTION IN YOUR SCRIPTS ######################
+progress_icon() {
+	local delay=0.1 # delay in seconds
+
+	echo -ne "\u259D\u2598 " # upper_left
+	sleep $delay;
+	echo -ne "\b\b\b" # clean_line
+	echo -ne "\u259D\u259A\u2596" # back_cross
+	sleep $delay;
+	echo -ne "\b\b\b" # clean_line
+	echo -ne "\u259D\u259C\u258C" # upper_right_corner
+	sleep $delay;
+	echo -ne "\b\b\b" # clean_line
+	echo -ne "\u2590\u2588\u258C" # full_block
+	sleep $delay;
+	echo -ne "\b\b\b" # clean_line
+	echo -ne "\u2597\u259F\u258C" # lower_right_corner
+	sleep $delay;
+	echo -ne "\b\b\b" # clean_line
+	echo -ne "\u2597\u259E\u2598" # cross
+	sleep $delay;
+	echo -ne "\b\b\b" # clean_line
+	echo -ne " \u259D\u2598" # upper_right
+	sleep $delay;
+	echo -ne "\b\b\b" # clean_line
+	echo -n "   " # blank
+	sleep $delay;
+	echo -ne "\b\b\b" # clean_line
+}
+
+# [optional] echo input string before progress icon
+if [ -n "$1" ]; then echo -n "$1 "; fi
+
+# [optional] color output
+tput setaf 196
+
+# [optional] repeat 3 times
+for count in $(seq 1 3); do
+	progress_icon
+done
+
+# [optional] newline after completion
+if [ -n "$1" ]; then echo; fi
