@@ -43,6 +43,7 @@ for ((n=0; n<3; n++)); do
 done
 
 # [optional] newline after completion
+tput sgr0
 if [ -n "$1" ]; then echo; fi
 
 # blocks explicitly defined as functions for scripting use
