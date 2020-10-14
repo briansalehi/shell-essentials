@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 if [ $# -eq 0 ]; then
-	echo -e "Language Bar\n\nUsage:\n\t$(basename $0) </path/to/project/directory>"
+	echo -e "Language Bar\n\nUsage:\n\t$(basename "$0") </path/to/project/directory>"
 	exit 1
-elif [ -f $1 ]; then
+elif [ -f "$1" ]; then
 	# if input is file, read its holding directory
-	directory=$(dirname $(readlink -f $1))
-elif [ -d $1 ]; then
-	directory=$(readlink -f $1)
+	directory=$(dirname "$(readlink -f "$1")")
+elif [ -d "$1" ]; then
+	directory=$(readlink -f "$1")
 else
 	tput bold
 	echo "$1 does not exist"
@@ -28,10 +28,11 @@ result=
 ## Counts lines of given file and stores in result.
 ## Currently this function is inefficient and has performance penalty.
 file_analyzer() {
-	local filepath=$1
+	local filepath="$1"
 	local filename=${filepath##*/}
 	local file_extension=${filename##*.}
-	local line_count=$(wc -l "$filepath" | cut -d' ' -f1)
+	local line_count=
+	line_count="$(wc -l "$filepath" | cut -d' ' -f1)"
 	local language=
 	local language_color=
 
@@ -97,9 +98,9 @@ file_analyzer() {
 			;;
 		*)
 			# detect bash script based on shebang in first line
-			charset=$(file -i $1)
+			charset=$(file -i "$1")
 			charset=${charset#*charset=}
-			if [ "$charset" == "us-ascii" ] && [ $(head -n1 $1 | grep -c bash) -eq 1 ]; then
+			if [ "$charset" == "us-ascii" ] && [ "$(head -n1 "$1" | grep -c bash)" -eq 1 ]; then
 				language=Shell
 				language_color=119 #light green
 			else
@@ -120,7 +121,7 @@ file_analyzer() {
 
 	# add up the line count for this language
 	((line_count+=previous_count))
-	result=$(awk -v language="$language" -v count=$line_count 'BEGIN{FS=",";OFS=",";RS=":";ORS=":"} $1==language {$2=count} NF==3' <<< "$result")
+	result=$(awk -v language="$language" -v count="$line_count" 'BEGIN{FS=",";OFS=",";RS=":";ORS=":"} $1==language {$2=count} NF==3' <<< "$result")
 }
 
 ## This function prints the language bar.
@@ -130,7 +131,7 @@ display_bar() {
 	# store the sum of lines in all affected languages for later use
 	sum=$(awk 'BEGIN{FS=",";RS=":"} {sum+=$2} END{print sum;}' <<< "$result")
 
-	if [ $sum -eq 0 ]; then
+	if [ "$sum" -eq 0 ]; then
 		tput bold
 		echo "No output"
 		tput sgr0
@@ -139,7 +140,7 @@ display_bar() {
 
 	# evaluage usage percentage of each language
 	result=${result%:}
-	result=$(awk -v sum=$sum 'BEGIN{FS=",";OFS=",";RS=":";ORS=":"} {percentage=$2*100/sum; printf "%s,%.1f,%s\n", $1, percentage, $3}' <<< "$result")
+	result=$(awk -v sum="$sum" 'BEGIN{FS=",";OFS=",";RS=":";ORS=":"} {percentage=$2*100/sum; printf "%s,%.1f,%s\n", $1, percentage, $3}' <<< "$result")
 
 	# sort the languages based on percentage
 	result=$(echo "$result" | tr ':' '\n' | sort -t, -k2 -r -h | sed '/^$/d' | tr '\n' ':')
@@ -160,8 +161,8 @@ display_bar() {
 
 language_analyzer() {
 	# search files for language detection
-	find $directory -type f  -not -path '*/\.*' -not -path '*/CMakeFiles/*' -not -path '*/build/*' > /tmp/record
-	while FS= read -r file; do
+	find "$directory" -type f  -not -path '*/\.*' -not -path '*/CMakeFiles/*' -not -path '*/build/*' > /tmp/record
+	while FS='' read -r file; do
 		file_analyzer "$file"
 	done < /tmp/record
 

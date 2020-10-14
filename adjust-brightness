@@ -1,30 +1,31 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-percent=$1
-backlight=/sys/class/backlight/intel_backlight
-numeric="^[0-9]+$"
+program="$(basename "$(readlink -f "$0")")"
+percent="$1"
+backlight="$(readlink -f /sys/class/backlight/*)"
 
-if [ -f $backlight/max_brightness ] && [ -f $backlight/brightness ]; then
-	max_brightness=$(cat $backlight/max_brightness)
-	brightness=$(cat $backlight/brightness)
-else
-	echo "cannot query brightness" >&2
+if [ $# -ne 1 ]; then ## no parameter error
+	echo "Adjust Screen Brightness"
+	echo
+	echo "Usage:"
+	echo "  $program [0~100]"
 	exit 1
+elif [ "$(id -u)" -ne 0 ]; then ## not privileged error
+	echo "permission denied, run as administrator." >&2
+	exit 2
+elif ! [ -f $backlight/brightness ]; then ## system file not found error
+	echo "cannot query brightness" >&2
+	exit 3
+elif ! [ -f $backlight/max_brightness ]; then ## system file not found error
+	echo "cannot query maximum brightness" >&2
+	exit 4
+elif [ -z "${percent##*[!0-9]*}" ]; then ## non-numeric input error
+	echo "input not numeric" >&2
+	exit 4
+elif [ "$percent" -le 0 ] || [ "$percent" -gt 100 ]; then ## bad range error
+	echo "bad range! (1 ~ 100)" >&2
+	exit 5
 fi
 
-if [ $# -ne 1 ]; then
-	echo -e "Adjust Screen Brightness\n\nUsage:\n\tadjust-brightness [percent]"
-	exit 2
-elif ! [[ $percent =~ $numeric ]]; then
-	echo "input not numeric" >&2
-	exit 3
-elif [ $1 -le 0 ] || [ $1 -gt 100 ]; then
-	echo "bad range! (1 ~ 100)" >&2
-	exit 4
-else
-	echo $[percent * max_brightness / 100] 2>/dev/null > $backlight/brightness
-	if [ $? -ne 0 ]; then
-		echo "permission denied, run as administrator." >&2
-		exit 5
-	fi
-fi
+max_brightness=$(cat $backlight/max_brightness)
+echo $((percent * max_brightness / 100)) > $backlight/brightness
