@@ -1,4 +1,4 @@
-all: adjust-brightness animated-progress-icon language-bar
+all: adjust-brightness animated-progress-icon language-bar generate-manual
 	cp $^ /usr/local/bin/
 
 clean:
