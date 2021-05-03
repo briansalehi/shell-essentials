@@ -10,12 +10,8 @@ fi
 
 if [ -f "$1" ]
 then
-	echo -n "file already exists, override? (N/y) "
-	read response
-	if [ "$response" != "y" ]
-	then
-		exit 1
-	fi
+	content="$(sed -n '/\** WRITE YOUR DATA HERE \**/,/\** END OF DATA \**/p' "$1")"
+	rm "$1"
 fi
 
 # HTML Begin
@@ -147,12 +143,23 @@ cat << 'EOF' >> "$1"
 			<button class="btn dropdown-item" onclick="defaultFontSize()" title="ALT + SHIFT + D" accesskey="d">&#x21ba;</button>
 		  </div>
 		</div>
+EOF
+
+if [ -n "$content" ]
+then
+	echo >> "$1"
+	echo "$content" >> "$1"
+	echo >> "$1"
+else
+	cat << EOF >> "$1"
 
 		<!-- ********** WRITE YOUR DATA HERE ********** -->
 
 		<!-- ********** END OF DATA ********** -->
 
 EOF
+fi
+
 
 # JS Scripts
 cat << 'EOF' >> "$1"
@@ -318,6 +325,39 @@ cat << 'EOF' >> "$1"
 				}
 			}
 			toggle_settings();
+
+			var current_position = 0;
+			function scrollDownListener() {
+			  window.addEventListener(
+				"keydown",
+				function(event) {
+				  if (event.key == "j") {
+					var screen_height = window.screen.height / 4;
+					current_position += screen_height;
+					window.scrollTo({top: current_position, behavior: 'smooth'})
+				  }
+				}
+			  )
+			}
+
+			function scrollUpListener() {
+			  window.addEventListener(
+				"keydown",
+				function(event) {
+				  if (event.key == "k") {
+					var screen_height = window.screen.height / 4;
+					current_position -= screen_height;
+					if (current_position < 0) {
+						current_position = 0;
+					}
+					window.scrollTo({top: current_position, behavior: 'smooth'})
+				  }
+				}
+			  )
+			}
+
+			scrollDownListener()
+			scrollUpListener()
 
 			var min_level  = 1;
 			var max_level  = 12;
