@@ -13,7 +13,7 @@ filename="${1%.*}.html"
 if [ -f "$filename" ]
 then
 	content="$(sed -n '/\** WRITE YOUR DATA HERE \**/,/\** END OF DATA \**/p' "$filename")"
-	title="$(sed 's/<title>\(.*\)<\/title>/\1/' "$filename")"
+	title="$(sed -n '/<title>/s/\s*<title>\(.*\)<\/title>.*/\1/p' "$filename")"
 else
 	echo -n "Give this manual a title: "
 	read title
