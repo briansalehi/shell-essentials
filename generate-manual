@@ -13,22 +13,26 @@ filename="${1%.*}.html"
 if [ -f "$filename" ]
 then
 	content="$(sed -n '/\** WRITE YOUR DATA HERE \**/,/\** END OF DATA \**/p' "$filename")"
+	title="$(sed 's/<title>\(.*\)<\/title>/\1/' "$filename")"
+else
+	echo -n "Give this manual a title: "
+	read title
 fi
 
 exec 3> "$filename"
 
 # HTML Begin
-cat << 'EOF' > &3
+cat << EOF >&3
 <!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<title>Use Case</title>
+		<title>${title}</title>
 EOF
 
 # CSS Links
-cat << 'EOF' > &3
+cat << 'EOF' >&3
 		<!-- ajax -->
 		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/themes/prism-tomorrow.min.css'>
 		<!-- bootstrap -->
@@ -42,7 +46,7 @@ cat << 'EOF' > &3
 EOF
 
 # CSS Style
-cat << 'EOF' > &3
+cat << 'EOF' >&3
 		<style>
 			.dark-mode {
 				background-color: black;
@@ -133,7 +137,7 @@ cat << 'EOF' > &3
 EOF
 
 # HTML Body
-cat << 'EOF' > &3
+cat << 'EOF' >&3
 	<body class="container">
 		<div class="dropdown pull-right sticky">
 		  <button class="btn btn-secondary dropbtn" onclick="toggle_settings()" style="font-size: 18px;">
@@ -150,11 +154,11 @@ EOF
 
 if [ -n "$content" ]
 then
-	echo > &3
-	echo "$content" > &3
-	echo > &3
+	echo >&3
+	echo "$content" >&3
+	echo >&3
 else
-	cat << EOF > &3
+	cat << EOF >&3
 
 		<!-- ********** WRITE YOUR DATA HERE ********** -->
 
@@ -165,7 +169,7 @@ fi
 
 
 # JS Scripts
-cat << 'EOF' > &3
+cat << 'EOF' >&3
 		<!-- bootstrap -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
@@ -282,7 +286,7 @@ case "${1##*.}" in
 esac
 
 # Custom JS Scripts
-cat << 'EOF' > &3
+cat << 'EOF' >&3
 		<script>
 			function darkmode() {
 				var bodystyle = document.body;
@@ -498,7 +502,7 @@ cat << 'EOF' > &3
 EOF
 
 # End of HTML
-cat << 'EOF' > &3
+cat << 'EOF' >&3
 	</body>
 </html>
 EOF
