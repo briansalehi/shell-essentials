@@ -8,14 +8,17 @@ then
 	exit 1
 fi
 
-if [ -f "$1" ]
+filename="${1%.*}.html"
+
+if [ -f "$filename" ]
 then
-	content="$(sed -n '/\** WRITE YOUR DATA HERE \**/,/\** END OF DATA \**/p' "$1")"
-	rm "$1"
+	content="$(sed -n '/\** WRITE YOUR DATA HERE \**/,/\** END OF DATA \**/p' "$filename")"
 fi
 
+exec 3> "$filename"
+
 # HTML Begin
-cat << 'EOF' >> "$1"
+cat << 'EOF' > &3
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -25,7 +28,7 @@ cat << 'EOF' >> "$1"
 EOF
 
 # CSS Links
-cat << 'EOF' >> "$1"
+cat << 'EOF' > &3
 		<!-- ajax -->
 		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/themes/prism-tomorrow.min.css'>
 		<!-- bootstrap -->
@@ -39,7 +42,7 @@ cat << 'EOF' >> "$1"
 EOF
 
 # CSS Style
-cat << 'EOF' >> "$1"
+cat << 'EOF' > &3
 		<style>
 			.dark-mode {
 				background-color: black;
@@ -130,7 +133,7 @@ cat << 'EOF' >> "$1"
 EOF
 
 # HTML Body
-cat << 'EOF' >> "$1"
+cat << 'EOF' > &3
 	<body class="container">
 		<div class="dropdown pull-right sticky">
 		  <button class="btn btn-secondary dropbtn" onclick="toggle_settings()" style="font-size: 18px;">
@@ -147,11 +150,11 @@ EOF
 
 if [ -n "$content" ]
 then
-	echo >> "$1"
-	echo "$content" >> "$1"
-	echo >> "$1"
+	echo > &3
+	echo "$content" > &3
+	echo > &3
 else
-	cat << EOF >> "$1"
+	cat << EOF > &3
 
 		<!-- ********** WRITE YOUR DATA HERE ********** -->
 
@@ -162,7 +165,7 @@ fi
 
 
 # JS Scripts
-cat << 'EOF' >> "$1"
+cat << 'EOF' > &3
 		<!-- bootstrap -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
@@ -181,105 +184,105 @@ EOF
 
 case "${1##*.}" in
 	asm|s)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-asm6502.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-asm6502.min.js"></script>'>&3;;
 	net|aspnet)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-aspnet.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-aspnet.min.js"></script>'>&3;;
 	bash)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-bash.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-bash.min.js"></script>'>&3;;
 	c|h)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-c.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-c.min.js"></script>'>&3;;
 	cmake|CMakeList.txt)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-cmake.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-cmake.min.js"></script>'>&3;;
 	cpp|cxx|c++|hpp|hxx)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-c.min.js"></script>' >>"$1"
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-cpp.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-c.min.js"></script>'>&3
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-cpp.min.js"></script>'>&3;;
 	cs|csharp)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-csharp.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-csharp.min.js"></script>'>&3;;
 	py|django)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-django.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-django.min.js"></script>'>&3;;
 	ns)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-dns-zone.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-dns-zone.min.js"></script>'>&3;;
 	docker)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-docker.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-docker.min.js"></script>'>&3;;
 	go)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-go.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-go.min.js"></script>'>&3;;
 	hcl)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-hcl.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-hcl.min.js"></script>'>&3;;
 	ignore)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-ignore.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-ignore.min.js"></script>'>&3;;
 	javadoc|jd)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-javadoc.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-javadoc.min.js"></script>'>&3;;
 	java|jar)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-java.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-java.min.js"></script>'>&3;;
 	json)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-json5.min.js"></script>' >>"$1"
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-json.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-json5.min.js"></script>'>&3
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-json.min.js"></script>'>&3;;
 	kotlin)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-kotlin.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-kotlin.min.js"></script>'>&3;;
 	latex|tex|xetex)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-latex.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-latex.min.js"></script>'>&3;;
 	md|make)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-makefile.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-makefile.min.js"></script>'>&3;;
 	md|markdown)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-markdown.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-markdown.min.js"></script>'>&3;;
 	ml|matlab)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-matlab.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-matlab.min.js"></script>'>&3;;
 	mongo|mongodb|db)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-mongodb.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-mongodb.min.js"></script>'>&3;;
 	nasm)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-nasm.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-nasm.min.js"></script>'>&3;;
 	nginx)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-nginx.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-nginx.min.js"></script>'>&3;;
 	oc|objectivec)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-objectivec.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-objectivec.min.js"></script>'>&3;;
 	opencl)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-opencl.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-opencl.min.js"></script>'>&3;;
 	perl)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-perl.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-perl.min.js"></script>'>&3;;
 	phpdoc)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-phpdoc.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-phpdoc.min.js"></script>'>&3;;
 	php)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-php.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-php.min.js"></script>'>&3;;
 	plsql)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-plsql.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-plsql.min.js"></script>'>&3;;
 	powershell)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-powershell.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-powershell.min.js"></script>'>&3;;
 	processing)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-processing.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-processing.min.js"></script>'>&3;;
 	prolog)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-prolog.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-prolog.min.js"></script>'>&3;;
 	py|python)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-python.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-python.min.js"></script>'>&3;;
 	qml)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-qml.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-qml.min.js"></script>'>&3;;
 	regex)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-regex.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-regex.min.js"></script>'>&3;;
 	r)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-r.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-r.min.js"></script>'>&3;;
 	ruby)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-ruby.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-ruby.min.js"></script>'>&3;;
 	rust)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-rust.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-rust.min.js"></script>'>&3;;
 	scala)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-scala.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-scala.min.js"></script>'>&3;;
 	sql)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-sql.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-sql.min.js"></script>'>&3;;
 	swift)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-swift.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-swift.min.js"></script>'>&3;;
 	typescript)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-typescript.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-typescript.min.js"></script>'>&3;;
 	verilog)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-verilog.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-verilog.min.js"></script>'>&3;;
 	vhdl)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-vhdl.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-vhdl.min.js"></script>'>&3;;
 	vim)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-vim.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-vim.min.js"></script>'>&3;;
 	wasm)
-		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-wasm.min.js"></script>' >>"$1";;
+		echo -e '\t\t<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-wasm.min.js"></script>'>&3;;
 esac
 
 # Custom JS Scripts
-cat << 'EOF' >> "$1"
+cat << 'EOF' > &3
 		<script>
 			function darkmode() {
 				var bodystyle = document.body;
@@ -495,7 +498,7 @@ cat << 'EOF' >> "$1"
 EOF
 
 # End of HTML
-cat << 'EOF' >> "$1"
+cat << 'EOF' > &3
 	</body>
 </html>
 EOF
